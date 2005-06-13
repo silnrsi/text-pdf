@@ -1,0 +1,71 @@
+2002-03-27  Gareth Jones  <gareth.jones@stud.man.ac.uk>
+
+		 * Name.pm (as_pdf): Use #XX for any characters outside !-~,
+		 plus delimiters.  Nul is not a valid character in a name.
+		 (name_from_string): PDF versions below 1.2 did not have # escapes.
+		 Use the PDF version to determine how to interpret #.
+
+		 * File.pm (readval): Rationalised whitespace in regexps so that
+		 they will work for any valid PDF file.
+		 (readval): Use name_to_string to localise hex-munging in Name.
+		 (readval): Make sure that tokens end with an irregular character.
+		 This is not needed for objects in the body of the PDF file but may
+		 be needed in content streams.
+		 (open): Set version.
+
+		 * Dict.pm (outobjdeep): Use #XX for any characters outside !-~,
+		 plus delimiters.  Nul is not a valid character in a name.
+
+2002-03-19  Gareth Jones  <gareth.jones@stud.man.ac.uk>
+
+		 * String.pm (convert): White space should be ignored in hex-strings.
+
+		 * File.pm (update): Remove leading whitespace, otherwise readval
+		 can loop for ever.
+		 (readval): endstream does not need to be followed by a $cr.
+		 (readval): \s does not include \0 which is a whitespace char in
+		 PDF so we should use $ws_char rather than \s.
+		 (readval): The `stream' keyword cannot be followed by a carrige
+		 return alone.
+
+		 * Null.pm: Having a specific null object avoids special cases when
+		 reading files that have nulls in dictionaries because
+		 $foo->{'bar'}->realise will now always work.
+
+		 * Dict.pm (outobjdeep): This can create invalid dictionaries if
+		 the keys aren't valid PDF names.
+
+2002-03-18  Gareth Jones  <gareth.jones@stud.man.ac.uk>
+
+		 * Pages.pm (new): Corrected documentation.
+
+		 * File.pm: Corrected documentation.
+		 (open): Test if seek fails.
+		 (open): Don't start seek from negative number.
+		 (readval): Ignore balanced parens when reading string.
+		 (readval): Replace long regexps with sensible variables
+		 (eg. $regular_char).  This means that all characters are regular
+		 chars *except* those excluded.  The previous versions would have
+		 rejected non-ASCII chars.
+* 0.8
+
+** Pages
+    Adding a page updates the Pages tree to account for the added page
+
+** pdfaddpg.pl
+    Sort out page insertion bugs
+
+* 0.7
+Lots of changes in the area of fixing file updating (rather than creating)
+
+* 0.5
+Lots of changes and introduction of this document
+
+** SFont
+    Remove dependence upon Font::Metrics, introduce dependence on 
+    Compress::Zlib, which is more likely to be available.
+    Store width tables in class
+
+** File
+    Restructure saving a lot to allow incremental output with emptying
+

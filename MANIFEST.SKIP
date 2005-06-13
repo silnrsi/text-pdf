@@ -1,0 +1,11 @@
+blib/
+\.\$\$\$
+\.tmp
+\.bak
+CVS/
+\.tar
+test/
+misc/
+\.cvsignore
+Makefile$
+\.zip
