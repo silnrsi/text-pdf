@@ -333,7 +333,7 @@ sub bbox
     {
         $test = 1; $i = 0;
         foreach $e ($inh->elementsof)
-        { $test &= $e->val == $bbox[$i++]; }
+        { $test &&= $e->val == $bbox[$i++]; }
         return $self if $test && $i == 4;
     }
 
