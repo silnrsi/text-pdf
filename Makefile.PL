@@ -3,16 +3,21 @@ use ExtUtils::MakeMaker;
 @scripts = grep {-f } glob("scripts/*");
 
 # incantation to enable MY::pm_to_blib later on
-push(@ExtUtils::MakeMaker::Overridable, qw(pm_to_blib)) if ($^O eq 'MSWin32');
+if ($^O eq 'MSWin32')
+{
+    push(@ExtUtils::MakeMaker::Overridable, qw(pm_to_blib));
+    @extras = (dist => { 'TO_UNIX' => 'perl -Mtounix -e "tounix(\"$(DISTVNAME)\")"' });
+}
 
 WriteMakefile (
         NAME => "Text::PDF",
-        VERSION_FROM => "lib/Text/PDF/File.pm",
+        VERSION_FROM => "lib/Text/PDF.pm",
+#        VERSION => "0.28",
         EXE_FILES => \@scripts,
         AUTHOR => "martin_hosken\@sil.org",
         ABSTRACT => "PDF Manipulation and generation",
         PREREQ_PM => {'Compress::Zlib' => 0},
-        dist => { 'TO_UNIX' => 'perl -Mtounix -e "tounix(\"$(DISTVNAME)\")"' }
+	@extras
     );
 
 if ($^O eq 'MSWin32') {
@@ -37,3 +42,4 @@ EOT
 
 }
 
+1;

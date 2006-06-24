@@ -1,0 +1,22 @@
+Source: libtext-pdf-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 4.0.2)
+Build-Depends-Indep: perl (>= 5.8.0-7)
+Maintainer: Martin Hosken <martin_hosken@sil.org>
+Standards-Version: 3.6.1
+
+Package: libtext-pdf-perl
+Architecture: all
+Depends: ${perl:Depends}, ${misc:Depends}, 
+Description:  Module for manipulating PDF files
+ This module allows interaction with existing PDF files directly. It includes
+ various tools including:
+ .
+ pdfbklt - make booklets out of existing PDF files
+ pdfrevert - remove edits from a PDF file
+ pdfstamp - stamp text on each page of a PDF file
+ .
+ various example programs are also included
+ .
+ This description was automagically extracted from the module by dh-make-perl.
