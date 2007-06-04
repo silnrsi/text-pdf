@@ -75,15 +75,16 @@ sub new
     $self->{'Subtype'} = PDFName("TrueType");
     if ($self->{' subset'})
     {
-        $self->{' subname'} = "$subcount+";
+        $self->{' subname'} = "$subcount+" . $name;
         $subcount++;
     }
+    else
+    { $self->{' subname'} = $name; }
     $name = $font->{'name'}->read->find_name(4) || return undef;
     $subf = $font->{'name'}->find_name(2);
     $name =~ s/\s//og;
     $name .= $subf if ($subf =~ m/^Regular$/oi);
-    $self->{'BaseFont'} = PDFName($self->{' subname'} . $name);
-    $subcount++;
+    $self->{'BaseFont'} = PDFName($self->{' subname'});
     $self->{'Name'} = PDFName($pdfname);
     $parent->new_obj($self);
 # leave the encoding & widths, etc. until we know the glyph list

@@ -8,7 +8,7 @@ Standards-Version: 3.6.1
 
 Package: libtext-pdf-perl
 Architecture: all
-Depends: ${perl:Depends}, ${misc:Depends}, 
+Depends: ${perl:Depends}, ${misc:Depends}, libcompress-zlib-perl
 Description:  Module for manipulating PDF files
  This module allows interaction with existing PDF files directly. It includes
  various tools including:

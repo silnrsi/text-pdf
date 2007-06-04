@@ -53,7 +53,7 @@ sub new
     $self->{'Subtype'} = PDFName('Type0');
     $self->{'Encoding'} = PDFName('Identity-H');
 
-    $parent->{' version'} = 3 unless $parent->{' version'} > 3;
+    $parent->{' version'} = 3 unless (defined $parent->{' version'} && $parent->{' version'} > 3);
     $desc = PDFDict();
     $parent->new_obj($desc);
     $desc->{'Type'} = $self->{'Type'};

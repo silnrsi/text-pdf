@@ -64,7 +64,7 @@ binary-indep: build install
 #	dh_installcron
 #	dh_installmenu
 #	dh_installexamples
-	dh_installdocs readme.txt lib/.svn/README.txt lib/Text/PDF/.svn/README.txt lib/Text/.svn/README.txt .svn/README.txt .svn/props/readme.txt.svn-work .svn/text-base/readme.txt.svn-base .svn/prop-base/readme.txt.svn-base .svn/wcprops/readme.txt.svn-work scripts/.svn/README.txt examples/.svn/README.txt
+	dh_installdocs readme.txt 
 	dh_installchangelogs lib/Text/PDF/changes
 	dh_perl
 	dh_link

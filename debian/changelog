@@ -1,6 +1,13 @@
-libtext-pdf-perl (0.28-1) unstable; urgency=low
+libtext-pdf-perl (0.29-1) edgy; urgency=low
 
-  * Initial Release.
+  * Non-maintainer upload.
+  * packages.sil.org build for edgy
 
- -- Martin Hosken <martin_hosken@sil.org>  Wed, 14 Jun 2006 13:52:02 +0700
+ -- Martin Hosken <martin_hosken@sil.org>  Fri, 23 Feb 2007 10:58:59 +0700
+
+libtext-pdf-perl (0.29) dapper; urgency=low
+
+  * Packaged
+
+ -- Martin Hosken <martin_hosken@sil.org>  Fri, 23 Feb 2007 10:52:32 +0700
 

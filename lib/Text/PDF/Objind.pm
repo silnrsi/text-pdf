@@ -120,7 +120,7 @@ sub release
     while (my $item = shift @tofree)
     {
         my $ref = ref($item);
-        if (UNIVERSAL::can($item, 'release'))
+        if (UNIVERSAL::can($ref, 'release'))        # $ref was $item
         { $item->release($force); }
         elsif ($ref eq 'ARRAY')
         { push( @tofree, @{$item} ); }
