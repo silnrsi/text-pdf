@@ -138,7 +138,7 @@ sub trim
     
     foreach (unpack("C*", $text))
     {
-        $width += $widths{$str}[$enc ne "" ? $nec_map{$enc}[$_] : $_];
+        $width += $widths{$str}[$enc ne "" ? $enc_map{$enc}[$_] : $_];
         last if ($width > $len);
         $i++;
     }
