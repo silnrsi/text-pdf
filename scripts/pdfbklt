@@ -5,8 +5,9 @@ use Text::PDF::Utils;
 use Getopt::Std;
 
 
-$version = "1.6";       # MJPH  13-JAN-2003     -s2b option supported
-#$version = "1.505";     # MJPH   3-AUG-2002     -s comma separated. Allow -ve values in -s
+$version = "1.7";       # MJPH  29-FEB-2008     add -g -p r, fix contents problem for empty pages
+# $version = "1.6";       # MJPH  13-JAN-2003     -s2b option supported
+# $version = "1.505";     # MJPH   3-AUG-2002     -s comma separated. Allow -ve values in -s
 #                                                 merge errors store something, at least!                        
 # $version = "1.504";     # MJPH  27-JUN-2002     Use CropBox over MediaBox
 # $version = "1.503";     # MJPH  19-FEB-2002     Fix -p1 positioning (again!)
@@ -23,12 +24,12 @@ $version = "1.6";       # MJPH  13-JAN-2003     -s2b option supported
 # $version = "1.4";       # MJPH   1-FEB-2000     Add -l and preset paper sizes
 # $version = "1.401";     # MJPH  28-JUN-2000     Debug content lists and -r
 
-getopts("b:h:lp:qrs:");
+getopts("b:g:h:lp:qrs:");
 
 if (!defined $ARGV[0])
 {
     die <<"EOT";
-    PDFBKLT [-b num/size] [-p num] [-q] [-r] [-s size] pdffile
+    PDFBKLT [-b num/size] [-l] [-p num] [-g num] [-q] [-r] [-s size] pdffile
 
  (c) M. Hosken.     Version: $version
 
@@ -37,9 +38,12 @@ modifications at the end.
 
   -b num/size    Specifies which page contains the output page size details [1]
             or gives the dimensions of the page in pts (x;y) or A4,ltr,lgl,A5
+  -g num[;offset] Makes up page groups, or signatures with num pages in each
+            and offset pages in the first signature.
+            num and offset must be multiples of 4
   -l        Flag to indicate linear scaling
   -p num    Specifies the number of pages on the output page (1, 2, 4) [2]
-            If 4, can be 4s to flip on short edge
+            If 4, can be 4s to flip on short edge. Append r if right to left.
   -q        Quiet (no on screen messages)
   -r        Rotates the output (-p 2 rotates automatically, -r rotates back)
   -s size   Specifies the the location of the actual text on a page:
@@ -80,7 +84,8 @@ foreach (qw(Outlines Dests Threads AcroForm PageLabels StructTreeRoot OpenAction
     }
 }
 
-$pcount = 0;
+$pgcount = 0;
+$rtl = ($opt_p =~ s/r$//o);
 proc_pages($pgs);
 
 if ($opt_s =~ m/b$/o)
@@ -134,33 +139,58 @@ unless ($opt_q)
     print "\nThere are $pgcount pages\n";
     print "Page box (pt) = $pbox[0], $pbox[1], $pbox[2], $pbox[3]\n";
 }
-$rpc = ($opt_p == 1) ? $pgcount : int(($pgcount + 3) / 4) * 4;
 
-for ($i = 0; $i < $rpc / $opt_p; $i++)
+if ($opt_g)
 {
-    if ($opt_p == 1)
+    my ($num, $offset) = split(/[\s;,:]/, $opt_g);
+    my ($i);
+    $offset ||= $num;
+    for ($i = $offset; $i < $pgcount; $i += $num)
+    { push (@jobs, $i); }
+}
+push(@jobs, ($opt_p == 1) ? $pgcount : int(($pgcount + 3) / 4) * 4);
+if ($opt_p > 1)
+{
+    for ($i = $pgcount; $i < int(($pgcount + 3) /4) * 4; $i++)
     {
-        next if $i >= $pgcount;
-        @pl = ($pglist[$i]);
-        $m = $i + 1;
+        if ($rtl)
+        { unshift (@pglist, undef); }
+        else
+        { push (@pglist, undef); }
     }
-    elsif ($opt_p == 2)
-    {
-        @pl = ($pglist[$i], $rpc - $i > $pgcount ? undef : $pglist[$rpc - $i - 1]);
-        @pl = ($pl[1], $pl[0]) if ($i & 1);
-        $m = ($i + 1) . ", " . ($rpc - $i);
-    } else      # $opt_p == 4
-    {
-        @pl = ($pglist[2 * $i]);
-# do these in a special order with increasing difficulty of passing if() requirement
-        push (@pl, $pglist[2 * $i + 1]) if (2 * $i + 1 < $pgcount);
-        push (@pl, $pglist[$rpc - 2 * $i - 2]) if ($rpc - 2 * $i - 2 < $pgcount);
-        push (@pl, $pglist[$rpc - 2 * $i - 1]) if ($rpc - 2 * $i <= $pgcount);
-        $m = (2 * $i + 1) . ", " . (2 * $i + 2) . ", " . ($rpc - 2 * $i - 1) . ", " . ($rpc - 2 * $i);
-    }
+}
 
-    print "Merging " . $m . "\n" unless $opt_q;
-    merge_pages(@pl);
+for ($jn = 0; $jn < scalar @jobs; $jn++)
+{
+    my ($first) = $jn ? $jobs[$jn - 1] : 0;
+    my ($last) = $jobs[$jn];
+
+    for ($i = 0; $i < ($last - $first) / $opt_p; $i++)
+    {
+        if ($opt_p == 1)
+        {
+            next if $i >= $pgcount;
+            @pl = ($pglist[$i + $first]);
+            $m = $i + 1;
+        }
+        elsif ($opt_p == 2)
+        {
+            @pl = ($pglist[$i + $first], $pglist[$last - $i - 1]);
+            @pl = ($pl[1], $pl[0]) if ($i & 1);
+            $m = ($first + $i + 1) . ", " . ($last - $i);
+        } else      # $opt_p == 4
+        {
+            @pl = ($pglist[2 * $i + $first]);
+    # do these in a special order with increasing difficulty of passing if() requirement
+            push (@pl, $pglist[2 * $i + 1 + $first]) if (2 * $i + 1 + $first < $pgcount);
+            push (@pl, $pglist[$last - 2 * $i - 2]) if ($last - 2 * $i - 2 < $pgcount);
+            push (@pl, $pglist[$last - 2 * $i - 1]) if ($last - 2 * $i <= $pgcount);
+            $m = (2 * $i + 1 + $first) . ", " . (2 * $i + 2 + $first) . ", " . ($last - 2 * $i - 1) . ", " . ($last - 2 * $i);
+        }
+
+        print "Merging " . $m . "\n" unless $opt_q;
+        merge_pages(@pl);
+    }
 }
 
 $p->append_file;
@@ -178,8 +208,11 @@ sub proc_pages
         { proc_pages($pgref); }
         else
         {
-            push (@pglist, $pgref);
-            $pgref->{' pnum'} = $pcount++;
+            if ($rtl)
+            { unshift (@pglist, $pgref); }
+            else
+            { push (@pglist, $pgref); }
+            $pgref->{' pnum'} = $pgcount++;
         }
     }
 }
@@ -187,12 +220,13 @@ sub proc_pages
 sub merge_pages
 {
     my (@pr) = @_;
-    my ($n, $is, $rl, $bt, $j, $xs, $ys, $scale, $scalestr, $scalestrr, $id, $i);
-    my (@slist, @s, $s, $bp, $s1, $s2, $p2, $min, $k);
+    my ($s, $j, $bp);
 
     $s = undef;
     for ($j = 0; $j <= $#pr; $j++)
     {
+        my ($n, $is, $rl, $bt, $xs, $ys, $scale, $scalestr, $scalestrr, $id, $i);
+        my (@slist, @s, $s1, $s2, $p2, $min, $k);
         next unless defined $pr[$j];
         @prbox = (); @clipbox = ();
         foreach $n (($pr[$j]->find_prop('CropBox') || $pr[$j]->find_prop('MediaBox'))->elementsof)
