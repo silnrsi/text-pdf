@@ -115,9 +115,9 @@ sub outfilt
             $res .= "z";
             next;
         }
-        for ($j = 0; $j < 4; $j++)
+        for ($j = 3; $j >= 0; $j--)
         { $c[$j] = $b - int($b / 85) * 85 + 33; $b /= 85; }
-        $res .= pack("C5", @c, $b + 33);
+        $res .= pack("C5", $b + 33, @c);
         $res .= "\n" if ($i % 60 == 56);
     }
     if ($isend && $i > length($str))
