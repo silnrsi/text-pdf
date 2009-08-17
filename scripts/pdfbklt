@@ -5,7 +5,8 @@ use Text::PDF::Utils;
 use Getopt::Std;
 
 
-$version = "1.7";       # MJPH  29-FEB-2008     add -g -p r, fix contents problem for empty pages
+$version = "1.8";       # MJPH  17-AUG-2009     add -u gutter for -p 2
+# $version = "1.7";       # MJPH  29-FEB-2008     add -g -p r, fix contents problem for empty pages
 # $version = "1.6";       # MJPH  13-JAN-2003     -s2b option supported
 # $version = "1.505";     # MJPH   3-AUG-2002     -s comma separated. Allow -ve values in -s
 #                                                 merge errors store something, at least!                        
@@ -14,17 +15,17 @@ $version = "1.7";       # MJPH  29-FEB-2008     add -g -p r, fix contents proble
 # $version = "1.502";     # MJPH  18-JUN-2001     Add support for -p4s
 # $version = "1.501";     # MJPH   2-MAY-2001     Correct positioning of -s;;; type pages
 # $version = "1.500";     # MJPH  26-JUL-2000     Correct positioning in some cases and add landscape sizes
-# $version = "1.100";     # MJPH   3-AUG-1998     Support new PDF library
-# $version = "1.101";     # MJPH  13-OCT-1998     Debug resource merging not being output
-# $version = "1.200";     # MJPH   6-NOV-1998     Merging external resources and change -r
-# $version = "1.201";     # MJPH  29-DEC-1998     Add test in merge_dict for $v2 not present
-# $version = "1.300";     # MJPH  15-JUN-1999     Remove outlines, etc. when making booklet
-# $version = "1.302";     # MJPH  30-NOV-1999     Update to use Text::PDF
-# $version = "1.302";     # MJPH  11-DEC-1999     Make sure updated root output
-# $version = "1.4";       # MJPH   1-FEB-2000     Add -l and preset paper sizes
 # $version = "1.401";     # MJPH  28-JUN-2000     Debug content lists and -r
+# $version = "1.4";       # MJPH   1-FEB-2000     Add -l and preset paper sizes
+# $version = "1.302";     # MJPH  11-DEC-1999     Make sure updated root output
+# $version = "1.302";     # MJPH  30-NOV-1999     Update to use Text::PDF
+# $version = "1.300";     # MJPH  15-JUN-1999     Remove outlines, etc. when making booklet
+# $version = "1.201";     # MJPH  29-DEC-1998     Add test in merge_dict for $v2 not present
+# $version = "1.200";     # MJPH   6-NOV-1998     Merging external resources and change -r
+# $version = "1.101";     # MJPH  13-OCT-1998     Debug resource merging not being output
+# $version = "1.100";     # MJPH   3-AUG-1998     Support new PDF library
 
-getopts("b:g:h:lp:qrs:");
+getopts("b:g:h:lp:qrs:u:");
 
 if (!defined $ARGV[0])
 {
@@ -56,6 +57,7 @@ modifications at the end.
                 4t  1/4 page right and left top (very big gutter)
                 4r/4l/4rt/4lt   1/4 page always on right or left bottom or top
                 location as a single string: minx,miny,maxx,maxy in pts
+  -u width  Specify the gutter size (for 2 pages per output page only)
 EOT
 }
 
@@ -67,7 +69,7 @@ EOT
     'lgl' => '612;1008',
     'lgll' => '1008;612',
     );
-
+$opt_u = 0 unless defined $opt_u;
 $opt_b = $sizes{lc($opt_b)} if defined $sizes{lc($opt_b)};
 print "Reading file\n" unless $opt_q;
 $p = Text::PDF::File->open($ARGV[0], 1) || die "Can't open $ARGV[0]";
@@ -260,7 +262,8 @@ sub merge_pages
         {
             @slist = ();
             $xs = ($pbox[2] - $pbox[0]) / ($prbox[2] - $prbox[0]);
-            $ys = ($pbox[3] - $pbox[1]) / ($prbox[3] - $prbox[1]);
+#            $ys = ($pbox[3] - $pbox[1]) / ($prbox[3] - $prbox[1]);
+            $ys = ($pbox[3] - $pbox[1] - $opt_u*2) / ($prbox[3] - $prbox[1]);
             $scale = ($prbox[3] - $prbox[1]) / ($prbox[2] - $prbox[0]);
             $rot = (($opt_p == 1 || $opt_p == 4) && $is == 2)
                     || ($opt_p == 2 && $is != 2);
@@ -287,13 +290,13 @@ sub merge_pages
             } elsif ($opt_p == 2 && $is != 2)       # portrait source on portrait
             {
                 @scalestr = (0, 0.5 * $ys * $scale, -$xs / $scale, 0,
-                        0.5 * ($xs * ($prbox[3] + $prbox[1]) / $scale + $pbox[2]), @clipbox);
+                        0.5 * ($xs * ($prbox[3] + $prbox[1]) / $scale + $pbox[2]));
                 $slist[0] = cm(@scalestr,
 #                        0.5 * (-$ys * $scale * $prbox[0] + $pbox[1] + $pbox[3]));
-                         .25 * (3 * ($pbox[1] + $pbox[3]) - $ys * $scale * ($prbox[2] + $prbox[0])), @clipbox);
+                         .25 * (3 * ($pbox[1] + $pbox[3]) - $ys * $scale * ($prbox[2] + $prbox[0])) + $opt_u*0.5, @clipbox);
                 $slist[1] = cm(@scalestr,
 #                        -0.5 * $ys * $scale * $prbox[0] + $pbox[1]);
-                         .25 * (3 * $pbox[1] + $pbox[3] - $ys * $scale * ($prbox[2] + $prbox[0])), @clipbox);
+                         .25 * (3 * $pbox[1] + $pbox[3] - $ys * $scale * ($prbox[2] + $prbox[0])) - $opt_u*0.5, @clipbox);
             } elsif ($opt_p == 2)                   # double page landscape on portrait
             {
                 @scalestr = ($xs, 0, 0, 0.5 * $ys, .5 * ($pbox[2] - $xs * ($prbox[2] - $prbox[0])));
