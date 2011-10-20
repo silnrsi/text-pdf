@@ -6,11 +6,11 @@ use Text::PDF::Utils;
 
 use Getopt::Std;
 
-getopts('f:l:s:t:');
+getopts('f:l:ps:t:');
 
 $VERSION = 0.02;    #   MJPH    23-JUL-2001     Re-order to stamp on the top
 
-unless (defined $ARGV[1] && -f $ARGV[0])
+unless ((defined $ARGV[1] || $opt_p) && -f $ARGV[0])
 {
     die <<'EOT';
     pdfstamp [-f font] [-l locx,locy] [-s size] infile string
@@ -19,6 +19,7 @@ size.
 
     -f font     Font name from the standard fonts [Helvetica]
     -l locx,locy    Location in points from bottom left of page [0,0]
+    -p          Use the page number as the string
     -s size     Font size to print at             [11]
     -t ttfile   TrueType font file to use (instead of -f)
 EOT
@@ -65,10 +66,18 @@ else
 $stream = PDFDict();
 $stream->{' stream'} = "BT 1 0 0 1 $opt_l Tm /ap$max $opt_s Tf " . $font->out_text($ARGV[1]) . " Tj ET";
 $pdf->new_obj($stream);
+$count = 1;
 foreach $p (@pglist)
 {
+    my ($s) = $stream;
+    if ($opt_p)
+    {
+        $s = PDFDict();
+        $s->{' stream'} = "BT 1 0 0 1 $opt_l Tm /ap$max $opt_s Tf " . $font->out_text($count++) . " Tj ET";
+        $pdf->new_obj($s);
+    }
     $p->add_font($font, $pdf);
-    $p->{Contents} = PDFArray($fpgins, $p->{Contents}->elementsof, $spgins, $stream);
+    $p->{Contents} = PDFArray($fpgins, $p->{Contents}->elementsof, $spgins, $s);
     $pdf->out_obj($p);
 }
 
