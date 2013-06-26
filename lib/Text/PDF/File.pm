@@ -628,6 +628,7 @@ sub readval
         {
             ($value, $str) = $self->readval($str, %opts);
             $res->add_elements($value);
+            $str = update($fh, $str);
         }
         $str =~ s/^\]//o;
     } elsif ($str =~ m/^(true|false)$irreg_char/o)                        # boolean
