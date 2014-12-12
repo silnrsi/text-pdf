@@ -17,3 +17,4 @@ debian/
 \.tar\.gz$
 \.par$
 -stamp$
+^MYMETA\..*$
