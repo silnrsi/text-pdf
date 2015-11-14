@@ -122,11 +122,17 @@ sub outobjdeep
             && defined $self->{'Filter'})
     {
         my ($hasflate) = -1;
-        my ($temp, $i, $temp1);
+        my ($temp, $i, $temp1, @filtlist);
         
-        for ($i = 0; $i < scalar @{$self->{'Filter'}{' val'}}; $i++)
+        if (ref($self->{'Filter'}) eq 'Text::PDF::Name')
+        { push(@filtlist, $self->{'Filter'}->val); }
+        else
         {
-            $temp = $self->{'Filter'}{' val'}[$i]->val;
+            for ($i = 0; $i < scalar @{$self->{'Filter'}{' val'}}; $i++)
+            { push (@filtlist, $self->{'Filter'}{' val'}[$i]->val); }
+        }
+        foreach $temp (@filtlist)
+        {
             if ($temp eq 'LZWDecode')               # hack to get around LZW patent
             {
                 if ($hasflate < -1)
