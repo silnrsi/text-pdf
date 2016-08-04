@@ -1,3 +1,9 @@
+libtext-pdf-perl (0.30-1ubuntu1) trusty; urgency=medium
+
+  * New upstream version
+
+ -- Nicolas Spalinger <nicolas.spalinger@sil.org>  Thu, 04 Aug 2016 22:14:12 +0200
+
 libtext-pdf-perl (0.29-1ubuntu1.3) dapper; urgency=low
 
   * Non-maintainer upload.
