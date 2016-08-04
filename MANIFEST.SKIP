@@ -9,6 +9,7 @@ misc/
 Makefile$
 \.zip
 blib/
+\.git/
 \.svn/
 ~$
 Makefile$
