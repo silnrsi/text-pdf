@@ -200,7 +200,7 @@ sub trim
 
 
 =head2 $t->out_text($text)
-    
+
 Indicates to the font that the text is to be output and returns the text to be output
 
 =cut
