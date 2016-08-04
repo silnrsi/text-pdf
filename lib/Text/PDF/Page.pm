@@ -24,9 +24,13 @@ structurally quite different.
 
 A page has various working variables:
 
+=over
+
 =item curstrm
 
 The currently open stream
+
+=back
 
 =head1 METHODS
 
