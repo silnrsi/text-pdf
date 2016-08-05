@@ -1,8 +1,9 @@
-
+use strict;
 use Text::PDF::File;
-require 'getopt.pl';
+use Getopt::Std;
 
-Getopt("g:n:o:");
+our ($opt_g, $opt_n, $opt_o);
+getopt("g:n:o:");
 
 unless (defined $ARGV[0])
 {
@@ -16,6 +17,8 @@ or outfile.
     -o outfile  Output file
 EOT
 }
+
+my ($file, $offset, $res, $str);
 
 $file = Text::PDF::File->open("$ARGV[0]") || die "Unable to open $ARGV[0]";
 $offset = $file->locate_obj($opt_n, $opt_g) || die "Can't find obj $opt_n $opt_g";
