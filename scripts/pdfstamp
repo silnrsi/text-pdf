@@ -1,14 +1,17 @@
 #!/usr/bin/perl
 
+use 5.006;    
+use strict;   
+
 use Text::PDF::File;
 use Text::PDF::SFont;
 use Text::PDF::Utils;
 
 use Getopt::Std;
-
+our ($opt_t,$opt_f,$opt_p,$opt_s,$opt_l);
 getopts('f:l:ps:t:');
 
-$VERSION = 0.02;    #   MJPH    23-JUL-2001     Re-order to stamp on the top
+our $VERSION = 0.02;    #   MJPH    23-JUL-2001     Re-order to stamp on the top
 
 unless ((defined $ARGV[1] || $opt_p) && -f $ARGV[0])
 {
@@ -32,6 +35,8 @@ $opt_s = 11 unless $opt_s;
 $opt_l =~ s/,\s*/ /o;
 $opt_l = "0 0" unless $opt_l;
 
+my ($pdf, $root, $pgs, $fpgins, $spgins, @pglist);
+
 $pdf = Text::PDF::File->open($ARGV[0], 1);
 $root = $pdf->{'Root'}->realise;
 $pgs = $root->{'Pages'}->realise;
@@ -43,31 +48,32 @@ $spgins->{' stream'} = "Q";
 
 @pglist = proc_pages($pdf, $pgs);
 
-$max = 0;
-foreach $p (@pglist)
+my $max = 0;
+foreach my $p (@pglist)
 {
-    $dict = $p->find_prop('Resources');
+    my $dict = $p->find_prop('Resources');
     if (defined $dict && defined $dict->{'Font'})
     {
-        foreach $k (keys %{$dict->{'Font'}})
+        foreach my $k (keys %{$dict->{'Font'}})
         {
             next unless $k =~ m/^ap([0-9]+)/o;
-            $val = $1;
+            my $val = $1;
             $max = $val if $val > $max;
         }
     }
 }
 
 $max++;
+my $font;
 if ($opt_t)
 { $font = Text::PDF::TTFont->new($pdf, $opt_t, "ap$max", -subset => 1) || die "Can't work with font $opt_t"; }
 else
 { $font = Text::PDF::SFont->new($pdf, $opt_f, "ap$max") || die "Can't create font $opt_f"; }
-$stream = PDFDict();
+my $stream = PDFDict();
 $stream->{' stream'} = "BT 1 0 0 1 $opt_l Tm /ap$max $opt_s Tf " . $font->out_text($ARGV[1]) . " Tj ET";
 $pdf->new_obj($stream);
-$count = 1;
-foreach $p (@pglist)
+my $count = 1;
+foreach my $p (@pglist)
 {
     my ($s) = $stream;
     if ($opt_p)
@@ -86,7 +92,7 @@ $pdf->close_file;
 sub proc_pages
 {
     my ($pdf, $pgs) = @_;
-    my ($pg, $pgref, @pglist);
+    my ($pg, $pgref, @pglist, $pcount);
 
     foreach $pgref ($pgs->{'Kids'}->elementsof)
     {
