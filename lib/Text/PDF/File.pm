@@ -309,6 +309,9 @@ sub release
     my ($self, $force) = @_;
     my (@tofree);
 
+# first, close the input file if it is still open
+	close($self->{' INFILE'});
+
 # delete stuff that we know we can, here
 
     if ($force)
