@@ -4,14 +4,6 @@ There seem to be a growing plethora of Perl modules for creating and
 manipulating PDF files. This module is no exception. Beyond the standard
 features you would expect from a PDF manipulation module there are:
 
-CHANGES
-
-This version marks a distinct step forward over previous versions. Many bugs
-have been removed and new features added. One incompatible change is that
-where the version of the pdf file could be set via $pdf->{'Version'}, this
-has had to be changed to $pdf->{' version'} so that the version didn't try
-to end up in the trailer dictionary!
-
 FEATURES
 
  .  Works with more than one PDF file open at once
@@ -67,13 +59,15 @@ Installation is as per the standard module installation approach:
 
     perl Makefile.PL
     make
+    make test
     make install
 
 If working on Win32 platform, then try:
 
     perl Makefile.PL
-    pmake
-    pmake install
+    dmake
+    dmake test
+    dmake install
 
 Your mileage may vary
 

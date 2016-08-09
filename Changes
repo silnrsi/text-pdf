@@ -1,0 +1,24 @@
+0.30 (in development)
+
+* Source repo moved from Subversion to Github
+* Add -p to pdfstamp
+* Add -g, -p, -u to pdfbklt
+
+* Bug fixes
+*    Wasn't installing on Windows Perl 5.22 and up
+*    [rt.cpan.org] #116492: make install fails under Strawberry Perl
+*    [rt.cpan.org] #110855: Fix pod2man errors
+*    [rt.cpan.org] #86452: Parse error reading array
+*    [rt.cpan.org] #78351: Invalid version format (non-numeric data)
+*    [rt.cpan.org] #41085: ASCII85 decode broken
+*    [rt.cpan.org] #32210: pdfstamp patch for use strict
+*    [rt.cpan.org] #31353: adding first test
+*    close INFILE at start of release()
+*    Fix Dict to allow single stream filters rather than requiring an array
+
+0.29a (07 Sep 2006)
+
+* Bug fixes
+*    [rt.cpan.org] #18574: "make install" doesn't install code
+
+Some previous changes documented in lib/Text/PDF/File.pm
