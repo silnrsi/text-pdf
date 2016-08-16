@@ -349,7 +349,10 @@ sub new
     my ($self) = {};
 
     $self->{'indict'} = [@basedict];
+    $self->{'count'} = 258;
     $self->{'insize'} = 9;
+    $self->{'cache'} = 0;
+    $self->{'cache_size'} = 0;
 #    $self->{'outfilt'} = Compress::Zlib::deflateInit();     # patent precludes LZW encoding
     bless $self, $class;
 }
@@ -357,37 +360,40 @@ sub new
 sub infilt
 {
     my ($self, $dat, $last) = @_;
-    my ($num, $cache, $cache_size, $res, $mode, $count);
+    my ($num, $res);
 
-    $count = 258;
-    while ($dat ne '' || $cache_size > 0)
+    $res = '';
+
+    while ($dat ne '' || $self->{'cache_size'} >= $self->{'insize'})
     {
-        ($num, $cache, $cache_size) = $self->read_dat(\$dat, $cache, $cache_size, $self->{'insize'});
-        return $res if ($num == 257);
-        if ($num == 256)
-        {
-             $self->{'indict'} = [@basedict];
-             $self->{'insize'} = 9;
-             $count = 258;
-             undef $mode;
-             next;
-        }
-        if (defined $mode)
-        {
-            $self->{'indict'}[$count] = $mode . substr($self->{'indict'}[$num], 0, 1);
-            $count++;
-        }
-        $mode = $self->{'indict'}[$num];
-        $res .= $mode;
-        if ($count >= 4096)
+        $num = $self->read_dat(\$dat);
+        last if $num < 0;
+        return $res if ($num == 257);	# End of Data
+        if ($num == 256)				# Clear table
         {
             $self->{'indict'} = [@basedict];
             $self->{'insize'} = 9;
-        } elsif ($count == 511)
+            $self->{'count'} = 258;
+            next;
+        }
+        if ($self->{'count'} > 258)
+        {
+            ($self->{'indict'}[$self->{'count'}-1]) .= substr($self->{'indict'}[$num], 0, 1);
+        }
+        if ($self->{'count'} < 4096)
+        {
+            $self->{'indict'}[$self->{'count'}] = $self->{'indict'}[$num];
+            $self->{'count'}++;
+        }
+        $res .= $self->{'indict'}[$num];
+        if ($self->{'count'} >= 4096)
+        {
+           # don't do anything on table full, the encoder tells us when to clear
+        } elsif ($self->{'count'} == 512)  
         { $self->{'insize'} = 10; }
-        elsif ($count == 1023)
+        elsif ($self->{'count'} == 1024) 
         { $self->{'insize'} = 11; }
-        elsif ($count == 2047)
+        elsif ($self->{'count'} == 2048) 
         { $self->{'insize'} = 12; }
     }
     return $res;
@@ -395,20 +401,21 @@ sub infilt
 
 sub read_dat
 {
-    my ($self, $rdat, $cache, $size, $len) = @_;
+    my ($self, $rdat) = @_;
     my ($res);
 
-    while ($size < $len)
+    while ($self->{'cache_size'} < $self->{'insize'})
     {
-        $cache = ($cache << 8) + unpack("C", $$rdat);
+        return -1 if $$rdat eq '';	# oops -- not enough data in this chunk
+        $self->{'cache'} = ($self->{'cache'} << 8) + unpack("C", $$rdat);
         substr($$rdat, 0, 1) = '';
-        $size += 8;
+        $self->{'cache_size'} += 8;
     }
 
-    $res = $cache >> ($size - $len);
-    $cache &= (1 << ($size - $len)) - 1;
-    $size -= $len;
-    ($res, $cache, $size);
+    $res = $self->{'cache'} >> ($self->{'cache_size'} - $self->{'insize'});
+    $self->{'cache'} &= (1 << ($self->{'cache_size'} - $self->{'insize'})) - 1;
+    $self->{'cache_size'} -= $self->{'insize'};
+    return $res;
 }
 
 1;
