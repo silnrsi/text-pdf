@@ -143,7 +143,8 @@ use Text::PDF::Page;
 use Text::PDF::Pages;
 use Text::PDF::Null;
 
-$VERSION = "0.27";      # MJPH  15-MAY-2006     Fix minor bug in Pages.pm
+# VERSION now taken from Text::PDF.pm
+#$VERSION = "0.27";      # MJPH  15-MAY-2006     Fix minor bug in Pages.pm
 #$VERSION = "0.26";      # MJPH  19-MAY-2005     Get a release out!
 #$VERSION = "0.25";      # MJPH  20-JAN-2003     fix realised in read_obj x y R, fix Text::PDF::Pages::add_page
 #$VERSION = "0.24";      # MJPH  28-AUG-2002     out_obj may call new_obj
