@@ -263,7 +263,7 @@ sub read_stream
 
         foreach $f (@filts)
         { $dat = $f->infilt($dat, $last); }
-        if (!$force_memory && !defined $self->{' streamfile'} && ((length($dat) * 2) > $mincache))
+        if (!$force_memory && !defined $self->{' streamfile'} && ((length($self->{' stream'}) * 2) > $mincache))
         {
             open (DICTFH, ">$tempbase") || next;
             binmode DICTFH;
