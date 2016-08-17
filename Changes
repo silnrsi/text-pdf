@@ -1,4 +1,4 @@
-0.30 (in development)
+0.30 Development
 
 * Source repo moved from Subversion to Github
 * Add -p to pdfstamp
@@ -18,12 +18,12 @@
 *    close INFILE at start of release()
 *    Fix Dict to allow single stream filters rather than requiring an array
 
-0.29a (07 Sep 2006)
+0.29a 2006-09-07
 
 * Bug fixes
 *    [rt.cpan.org] #18574: "make install" doesn't install code
 
-0.29 (23 Jun 2006)
+0.29 2006-06-23
 * Add Text::PDF.pm; take version from this file rather than from Text::PDF::File.pm
 * Add debian packaging instructions
  
