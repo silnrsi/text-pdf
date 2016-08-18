@@ -65,7 +65,7 @@ binary-indep: build install
 #	dh_installmenu
 #	dh_installexamples
 	dh_installdocs readme.txt 
-	dh_installchangelogs lib/Text/PDF/changes
+	dh_installchangelogs Changes
 	dh_perl
 	dh_link
 	dh_strip
