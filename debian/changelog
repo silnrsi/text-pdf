@@ -1,3 +1,9 @@
+libtext-pdf-perl (0.31-1ubuntu1) trusty; urgency=medium
+
+  * New upstream version
+
+ -- Bob Hallissy <bob_hallissy@sil.org>  Wed, 24 Aug 2016 13:46:00 +0700
+
 libtext-pdf-perl (0.30-1ubuntu1) trusty; urgency=medium
 
   * New upstream version
