@@ -102,9 +102,10 @@ sub outobjdeep
             $fh->print("\n");
         }
     }
-    while (($key, $val) = each %{$self})
+    foreach $key (sort {$a cmp $b} keys %{$self})
     {
         next if ($key =~ m/^[\s\-]/o || $specs{$key});
+        $val = $self->{$key};
         next if ($val eq '');
         $key = Text::PDF::Name::string_to_name ($key, $pdf);
         $fh->print("/$key ");
@@ -323,5 +324,5 @@ sub copy
     }
     $res;
 }
-    
 
+1;
