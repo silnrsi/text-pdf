@@ -70,6 +70,10 @@ sub new
 
     $self->{' font'} = $font;
     $Font::TTF::Name::utf8 = 1;
+    $name = $font->{'name'}->read->find_name(4) || return undef;
+    $subf = $font->{'name'}->find_name(2);
+    $name =~ s/\s//og;
+    $name .= $subf if ($subf =~ m/^Regular$/oi);
     
     $self->{'Type'} = PDFName("Font");
     $self->{'Subtype'} = PDFName("TrueType");
@@ -80,10 +84,6 @@ sub new
     }
     else
     { $self->{' subname'} = $name; }
-    $name = $font->{'name'}->read->find_name(4) || return undef;
-    $subf = $font->{'name'}->find_name(2);
-    $name =~ s/\s//og;
-    $name .= $subf if ($subf =~ m/^Regular$/oi);
     $self->{'BaseFont'} = PDFName($self->{' subname'});
     $self->{'Name'} = PDFName($pdfname);
     $parent->new_obj($self);

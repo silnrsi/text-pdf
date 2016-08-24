@@ -2,6 +2,7 @@
 
 * Sort PDF dictionary keys for consistent output
 * Bug fixes
+*    TTF Font objects had null BaseFont (broken at commit afd5b9a)
 *    [rt.cpan.org] #110854: Fix spelling error in manpage
 
 0.30 2016-08-17
