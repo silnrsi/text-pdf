@@ -1,6 +1,8 @@
 0.31 Development
 
 * Sort PDF dictionary keys for consistent output
+* Bug fixes
+*    [rt.cpan.org] #110854: Fix spelling error in manpage
 
 0.30 2016-08-17
 
