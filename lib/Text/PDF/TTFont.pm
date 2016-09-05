@@ -43,7 +43,7 @@ $subcount = "BXCJIM";
 
 Creates a new font resource for the given fontfile. This includes the font
 descriptor and the font stream. The $pdfname is the name by which this font
-resource will be known throughtout a particular PDF file.
+resource will be known throughout a particular PDF file.
 
 All font resources are full PDF objects.
 
