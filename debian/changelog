@@ -1,3 +1,9 @@
+libtext-pdf-perl (0.31-1ubuntu2) xenial; urgency=medium
+
+  * Bump compat version for LP build. 
+
+ -- Nicolas Spalinger <nicolas.spalinger@sil.org>  Wed, 25 Oct 2017 13:34:32 +0200
+
 libtext-pdf-perl (0.31-1ubuntu1) trusty; urgency=medium
 
   * New upstream version
