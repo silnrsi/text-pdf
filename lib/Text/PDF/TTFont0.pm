@@ -109,9 +109,11 @@ sub new
         $unistr = '/CIDInit /ProcSet findresource being 12 dict begin begincmap
 /CIDSystemInfo << /Registry (' . $self->{'BaseFont'}->val . '+0) /Ordering (XYZ)
 /Supplement 0 >> def
-/CMapName /' . $self->{'BaseFont'}->val . '+0 def
+/CMapName /' . $self->{'BaseFont'}->val . '+0 def /CMapType 2 def
 1 begincodespacerange <';
-        $unistr .= sprintf("%04x> <%04x> endcodespacerange\n", 1, $num - 1);
+        $unistr .= sprintf("%04X> <%04X> endcodespacerange\n", 1, $num - 1);
+        $unistr .= $num - $i > 100 ? 100 : $num - $i;
+        $unistr .= " beginfbrange";
         for ($i = 1; $i < $num; $i++)
         {
             if ($i % 100 == 0)
@@ -120,9 +122,9 @@ sub new
                 $unistr .= $num - $i > 100 ? 100 : $num - $i;
                 $unistr .= " beginbfrange\n";
             }
-            $unistr .= sprintf("<%04x> <%04x> <%04x>\n", $i, $i, $rev[$i]);
+            $unistr .= sprintf("<%04X> <%04X> <%04X>\n", $i, $i, $rev[$i]);
         }
-        $unistr .= "endbfrange\nendcmap CMapName currendict /CMap defineresource pop end end";
+        $unistr .= "endbfrange\nendcmap CMapName currendict /CMap defineresource pop end end\n";
         $touni = PDFDict();
         $parent->new_obj($touni);
         $touni->{' stream'} = $unistr;
