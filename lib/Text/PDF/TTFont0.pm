@@ -110,10 +110,10 @@ sub new
 /CIDSystemInfo << /Registry (' . $self->{'BaseFont'}->val . '+0) /Ordering (XYZ)
 /Supplement 0 >> def
 /CMapName /' . $self->{'BaseFont'}->val . '+0 def /CMapType 2 def
-1 begincodespacerange <';
-        $unistr .= sprintf("%04X> <%04X> endcodespacerange\n", 1, $num - 1);
+1 begincodespacerange ';
+        $unistr .= sprintf("<%04X> <%04X> endcodespacerange\n", 1, $num - 1);
         $unistr .= $num - $i > 100 ? 100 : $num - $i;
-        $unistr .= " beginfbrange";
+        $unistr .= " beginbfrange";
         for ($i = 1; $i < $num; $i++)
         {
             if ($i % 100 == 0)
