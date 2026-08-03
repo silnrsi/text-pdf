@@ -175,7 +175,7 @@ sub outobjdeep
                 $pdf->out_obj($self->{'Length'}) if ($self->{'Length'}->is_obj($pdf));
             }
         }
-        $fh->print("\n") unless ($str =~ m/$cr$/o);
+        $fh->print("\n");
         $fh->print("endstream");
 #        $self->{'Length'}->outobjdeep($fh);
     } elsif (defined $self->{' streamfile'})
