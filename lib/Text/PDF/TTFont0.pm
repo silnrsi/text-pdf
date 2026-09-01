@@ -106,25 +106,42 @@ sub new
     if ($opt{'ToUnicode'})
     {
         @rev = $font->{'cmap'}->read->reverse;
-        $unistr = '/CIDInit /ProcSet findresource being 12 dict begin begincmap
+        my $num = grep defined, @rev;
+        $unistr = '/CIDInit /ProcSet findresource begin 12 dict begin begincmap
 /CIDSystemInfo << /Registry (' . $self->{'BaseFont'}->val . '+0) /Ordering (XYZ)
 /Supplement 0 >> def
 /CMapName /' . $self->{'BaseFont'}->val . '+0 def /CMapType 2 def
-1 begincodespacerange ';
-        $unistr .= sprintf("<%04X> <%04X> endcodespacerange\n", 1, $num - 1);
-        $unistr .= $num - $i > 100 ? 100 : $num - $i;
-        $unistr .= " beginbfrange";
-        for ($i = 1; $i < $num; $i++)
+1 begincodespacerange <0000> <FFFF> endcodespacerange'."\n";
+        for (my $i = my $j = 0; $i < @rev; $i++)
         {
-            if ($i % 100 == 0)
+            next unless defined $rev[$i];
+            my $s = $num - $j > 100 ? 100 : $num - $j;
+            if ($j == 0)
             {
-                $unistr .= "endbfrange\n";
-                $unistr .= $num - $i > 100 ? 100 : $num - $i;
-                $unistr .= " beginbfrange\n";
+                $unistr .= "$s beginbfchar\n";
             }
-            $unistr .= sprintf("<%04X> <%04X> <%04X>\n", $i, $i, $rev[$i]);
+            elsif ($j % 100 == 0)
+            {
+                $unistr .= "endbfchar\n";
+                $unistr .= "$s beginbfchar\n";
+            }
+            my $uni = $rev[$i];
+            # ToUnicode destinations are UTF-16BE, so anything outside the
+            # BMP has to be written as a surrogate pair. find_ms() prefers
+            # the (3,10) UCS-4 subtable, so astral code points do reach here.
+            if ($uni > 0xFFFF)
+            {
+                my $v = $uni - 0x10000;
+                $unistr .= sprintf("<%04X> <%04X%04X>\n", $i,
+                                   0xD800 + ($v >> 10), 0xDC00 + ($v & 0x3FF));
+            }
+            else
+            {
+                $unistr .= sprintf("<%04X> <%04X>\n", $i, $uni);
+            }
+            $j++;
         }
-        $unistr .= "endbfrange\nendcmap CMapName currendict /CMap defineresource pop end end\n";
+        $unistr .= "endbfchar\nendcmap CMapName currentdict /CMap defineresource pop end end\n";
         $touni = PDFDict();
         $parent->new_obj($touni);
         $touni->{' stream'} = $unistr;
